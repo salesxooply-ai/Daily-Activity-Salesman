@@ -165,6 +165,13 @@
 
     </form>
 </div>
+    <h2>Daftar Klien Aktif</h2>
+    <div class="container" style="margin-top: 30px;">
+    <h2>Data Laporan Harian Salesman (Live dari Google Sheet)</h2>
+    <table id="liveReportTable" class="client-table">
+        </table>
+    <p id="loadingReport" style="text-align: center; color: #007bff;">Memuat data laporan...</p>
+</div>
 
 <script>
     // PASTE WEB APP URL DARI GOOGLE APPS SCRIPT DI SINI
@@ -225,6 +232,86 @@
         const formattedToday = yyyy + '-' + mm + '-' + dd;
         dateInput.value = formattedToday;
     });
+
+    // PASTE WEB APP URL DARI GOOGLE APPS SCRIPT DI SINI
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxF32NrNJFetA0gxyFDtBKN_a68tP9CpIy7D6XXqgakds7U8liyfgzdBKoQU1T6Bn-30A/exec'; 
+
+// Fungsi untuk mengambil data dari Apps Script dan menampilkannya di tabel
+async function loadLiveReport() {
+    const table = document.getElementById('liveReportTable');
+    const loading = document.getElementById('loadingReport');
+
+    // Sembunyikan pesan loading
+    loading.style.display = 'block';
+    table.innerHTML = ''; // Kosongkan tabel sebelumnya
+
+    try {
+        // Mengambil data menggunakan permintaan GET
+        const response = await fetch(SCRIPT_URL); 
+
+        if (!response.ok) {
+            throw new Error(`Gagal mengambil data dari Apps Script. Status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (result && result.header && result.data) {
+            // 1. Buat Header Tabel
+            let tableHTML = '<thead><tr>';
+            result.header.forEach(h => {
+                // Hanya tampilkan header yang penting (misal: lewati Timestamp mentah)
+                if (h !== "Timestamp") { 
+                    tableHTML += `<th>${h}</th>`;
+                }
+            });
+            tableHTML += '</tr></thead><tbody>';
+
+            // 2. Isi Baris Data
+            result.data.reverse().forEach(row => { // Reverse untuk menampilkan data terbaru di atas
+                tableHTML += '<tr>';
+                // Kita asumsikan kolom Timestamp (indeks 0) dilewati
+                for (let i = 1; i < row.length; i++) { 
+                    let cellData = row[i];
+
+                    // Perlakuan khusus untuk kolom Status
+                    if (result.header[i] === "Status") {
+                        let statusClass = cellData.toLowerCase().includes('deal') ? 'status-deal' :
+                                          cellData.toLowerCase().includes('follow up') ? 'status-followup' :
+                                          cellData.toLowerCase().includes('pending') ? 'status-followup' :
+                                          cellData.toLowerCase().includes('lost') || cellData.toLowerCase().includes('gagal') ? 'status-lost' :
+                                          'status-process';
+                        cellData = `<span class="status ${statusClass}">${cellData}</span>`;
+                    } else if (result.header[i] === "TanggalLaporan") {
+                        // Format tanggal agar lebih mudah dibaca (jika data dari sheet adalah string tanggal)
+                        cellData = new Date(cellData).toLocaleDateString('id-ID'); 
+                    }
+
+                    tableHTML += `<td>${cellData}</td>`;
+                }
+                tableHTML += '</tr>';
+            });
+            tableHTML += '</tbody>';
+
+            table.innerHTML = tableHTML;
+        } else {
+            table.innerHTML = '<tbody><tr><td colspan="9" style="text-align: center;">Belum ada data laporan yang tersedia.</td></tr></tbody>';
+        }
+
+    } catch (error) {
+        console.error('Error memuat data:', error);
+        table.innerHTML = `<tbody><tr><td colspan="9" style="text-align: center; color: red;">Gagal memuat data: ${error.message}</td></tr></tbody>`;
+    } finally {
+        loading.style.display = 'none'; // Sembunyikan loading
+    }
+}
+
+// Panggil fungsi untuk memuat laporan saat halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    // ... (Kode pengisian tanggal otomatis) ...
+    loadLiveReport(); // Panggil fungsi pemuatan data
+});
+
+// ... (Fungsi submit form sebelumnya tetap ada di sini) ...
 </script>
 </body>
 </html>
