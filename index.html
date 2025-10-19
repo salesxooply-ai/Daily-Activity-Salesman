@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Activity Salesman Report</title>
+    <style>
+        /* CSS Styling */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #e9eef2;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+        }
+        h1 {
+            color: #007bff;
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        textarea {
+            resize: vertical;
+        }
+        button {
+            background-color: #28a745; /* Hijau untuk Submit */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #1e7e34;
+        }
+        .activity-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+        }
+        .activity-section h3 {
+            margin-top: 0;
+            color: #007bff;
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Laporan Aktivitas Harian Salesman</h1>
+    
+    <form id="dailyActivityForm">
+        
+        <div class="form-group">
+            <label for="salesmanName">Nama Salesman:</label>
+            <input type="text" id="salesmanName" name="salesmanName" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="reportDate">Tanggal Laporan:</label>
+            <input type="date" id="reportDate" name="reportDate" required>
+        </div>
+
+        <hr>
+
+        <div class="activity-section">
+            <h3>Aktivitas Kunjungan (Meeting/Prospecting)</h3>
+            
+            <div class="form-group">
+                <label for="clientName">Nama Klien / Prospek:</label>
+                <input type="text" id="clientName" name="clientName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="location">Lokasi Kunjungan:</label>
+                <input type="text" id="location" name="location" placeholder="Kota, Area">
+            </div>
+
+            <div class="form-group">
+                <label for="activityTime">Waktu Kunjungan:</label>
+                <input type="time" id="activityTime" name="activityTime">
+            </div>
+            
+            <div class="form-group">
+                <label for="agenda">Agenda / Topik Diskusi:</label>
+                <textarea id="agenda" name="agenda" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="result">Hasil / Keputusan:</label>
+                <textarea id="result" name="result" rows="4" required placeholder="Apa keputusan klien? Apa langkah selanjutnya?"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status Prospek:</label>
+                <select id="status" name="status" required>
+                    <option value="">-- Pilih Status --</option>
+                    <option value="followup">Perlu Follow Up</option>
+                    <option value="deal">Potensi Deal (High)</option>
+                    <option value="pending">Menunggu Keputusan</option>
+                    <option value="lost">Lost / Gagal</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="activity-section">
+            <h3>Aktivitas Tambahan (Internal/Administrasi)</h3>
+            
+            <div class="form-group">
+                <label for="otherActivity">Deskripsi Aktivitas Lain:</label>
+                <textarea id="otherActivity" name="otherActivity" rows="3" placeholder="Contoh: Rapat Internal Evaluasi, Membuat Laporan Mingguan, Pelatihan Produk."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">Catatan Umum / Kendala:</label>
+                <textarea id="notes" name="notes" rows="2" placeholder="Tuliskan kendala di lapangan atau kebutuhan bantuan."></textarea>
+            </div>
+        </div>
+        
+        <div class="form-group" style="margin-top: 30px;">
+            <button type="submit">Kirim Laporan Harian</button>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    // PASTE WEB APP URL DARI GOOGLE APPS SCRIPT DI SINI
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxF32NrNJFetA0gxyFDtBKN_a68tP9CpIy7D6XXqgakds7U8liyfgzdBKoQU1T6Bn-30A/exec'; 
+
+    document.getElementById('dailyActivityForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const form = event.target;
+        const formData = new FormData(form);
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.innerText = "Mengirim data, mohon tunggu...";
+        loadingIndicator.style.cssText = "text-align:center; color:#007bff; margin-top:15px;";
+        form.parentNode.insertBefore(loadingIndicator, form.nextSibling);
+
+        try {
+            // Mengubah FormData menjadi objek URLSearchParams untuk pengiriman
+            const params = new URLSearchParams(formData);
+            
+            // Menggunakan Fetch API untuk mengirim data
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: params
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.result === "success") {
+                alert("✅ Laporan Aktivitas Harian berhasil disimpan ke Google Sheet!");
+                form.reset();
+            } else {
+                throw new Error("Respons dari server tidak valid.");
+            }
+
+        } catch (error) {
+            console.error('Error saat mengirim data:', error);
+            alert(`❌ Gagal menyimpan data! Kesalahan: ${error.message}`);
+        } finally {
+            loadingIndicator.remove();
+        }
+    });
+
+    // Mengisi tanggal hari ini secara otomatis (seperti pada contoh sebelumnya)
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('reportDate');
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        let mm = today.getMonth() + 1;
+        let dd = today.getDate();
+
+        if (dd < 10) dd = '0' + dd;
+        if (mm < 10) mm = '0' + mm;
+
+        const formattedToday = yyyy + '-' + mm + '-' + dd;
+        dateInput.value = formattedToday;
+    });
+</script>
+</body>
+</html>
